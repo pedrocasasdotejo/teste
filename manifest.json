@@ -1,0 +1,21 @@
+{
+  "short_name": "ConsultoriaCE",
+  "name": "Consultoria CE - Engenharia Civil",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231a3a5c'><rect width='24' height='24' rx='4'/><path d='M12 5l7 7-7 7-7-7z' fill='white'/></svg>",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231a3a5c'><rect width='24' height='24' rx='4'/><path d='M12 5l7 7-7 7-7-7z' fill='white'/></svg>",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f7f6f3",
+  "theme_color": "#1a3a5c",
+  "display": "standalone",
+  "orientation": "portrait"
+}
