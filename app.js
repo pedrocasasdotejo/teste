@@ -1,6 +1,6 @@
-// app.js - Lógica Central da Aplicação (Versão Corrigida)
+// app.js - Lógica Central da Aplicação (Versão com Bloqueio de Sincronização e Fluxo Corrigido)
 
-const BD_DEFAULT={"versao":"1.0","zonas":[{"id":"fachadas","nome":"Fachadas","anomalias":[{"id":"fach_01","nome":"Fissuras no revestimento","severidade_padrao":"M","causas":["Retração hidráulica do reboco por secagem rápida na aplicação","Ciclos quente-frio com dilatação térmica diferencial","Movimentos diferenciais entre elements estruturais e não estruturais","Falta de manutenção"],"solucoes":["Limpeza e selagem das fissuras com argamassa de cal ou produto elástico compatível","Aplicação de primário de consolidação e posterior pintura com tinta elástica","Em fissuras activas: corte em V, selagem com mástique elástico e remate"],"notas_tecnicas":"Distinguir fissuras passivas (estabilizadas) de activas (em evolução). Fissuras com largura > 0,3 mm devem ser reportadas ao projectista."},{"id":"fach_02","nome":"Infiltrações / humidade de precipitação","severidade_padrao":"G","causas":["Degradação ou ausência de selagem nas juntas de caixilharia","Revestimento de fachada fissurado ou com porosidade elevada","Junta de dilatação selada com material rígido ou degradado","Cornijas ou peitoris sem goteira"],"solucoes":["Inspecção e refechamento de juntas com mástique de poliuretano ou silicone neutro","Aplicação de hidrofugante de superfície em revestimentos porosos","Substituição da selagem da junta de dilatação por perfil elástico adequado","Execução ou reparação de goteiras em peitoris e cornijas"],"notas_tecnicas":"Identificar a origem exacta da infiltração antes de intervir."},{"id":"fach_03","nome":"Armaduras expostas / carbonatação","severidade_padrao":"G","causas":["Recobrimento insuficiente das armaduras na construção","Carbonatação do betão atingindo a armadura","Cloretos em zonas costeiras acelerando a corrosão"],"solucoes":["Remoção do betão degradado até 2 cm além da armadura exposta","Tratamento anticorrosivo das armaduras (primário epoxídico bicomponente)","Reposição do recobrimento com argamassa de reparação estrutural (classe R3/R4)"],"notas_tecnicas":"A extensão da corrosão pode ser superior à visível."},{"id":"fach_04","nome":"Destacamento / empolamento do revestimento","severidade_padrao":"M","causas":["Falta de aderência entre camadas de revestimento","Humidade retida entre suporte e revestimento","Aplicação sobre suporte contaminado"],"solucoes":["Percussão para mapeamento das zonas ocas e remoção selectiva","Limpeza e preparação do suporte","Aplicação de primário de aderência e reposição do revestimento"],"notas_tecnicas":"Utilizar percussão (martelo leve) para identificar extensão das zonas ocas."}]},{"id":"cobertura","nome":"Cobertura","anomalias":[{"id":"cob_01","nome":"Infiltrações pela cobertura","severidade_padrao":"G","causas":["Telhas partidas, deslocadas ou em falta","Degradação ou ausência de impermeabilização na zona de cumeeira, rincões e platibandas","Caleiras e rufos degradados ou mal executados"],"solucoes":["Inspecção completa e substituição de telhas danificadas","Reparação ou substituição de impermeabilização em pontos singulares","Substituição de caleiras e rufos degradados"],"notas_tecnicas":"Verificar estado da estrutura de suporte em coberturas inclinadas."},{"id":"cob_02","nome":"Estrutura de madeira degradada","severidade_padrao":"MG","causas":["Ataque de xilófagos (caruncho, térmitas)","Humidade permanente por infiltrações","Falta de ventilação da caixa de ar"],"solucoes":["Avaliação da extensão do dano — substituição parcial ou total","Tratamento das madeiras sãs com fungicida/insecticida de penetração profunda"],"notas_tecnicas":"Recomendar ensaio de resistógrafo em casos de dúvida."},{"id":"cob_03","nome":"Deformação excessiva da cobertura","severidade_padrao":"MG","causas":["Degradação da estrutura resistente","Sobrecargas não previstas"],"solucoes":["Escoramento de emergência se deformação for activa","Avaliação estrutural por engenheiro antes de qualquer intervenção"],"notas_tecnicas":"ATENÇÃO: deformação visível a olho nu deve ser tratada como situação de risco."}]},{"id":"paredes_interiores","nome":"Paredes Interiores","anomalias":[{"id":"par_01","nome":"Humidade de condensação","severidade_padrao":"M","causas":["Insuficiente isolamento térmico (pontes térmicas)","Ventilação inadequada dos espaços"],"solucoes":["Melhoria do isolamento térmico (reforço interior ou ETICS pelo exterior)","Instalação ou melhoria da ventilação mecânica controlada (VMC)"],"notas_tecnicas":"Distinguir humidade de condensação de infiltração."},{"id":"par_02","nome":"Humidade ascensional","severidade_padrao":"G","causas":["Ausência ou degradação da barreira corta-humidade","Lençol freático elevado"],"solucoes":["Injecção de resinas hidrofóbicas na base das paredes","Drenagem perimetral se causa for lençol freático elevado"],"notas_tecnicas":"Padrão: mancha com limite superior horizontal e aureola de sais."},{"id":"par_03","nome":"Fissuras em paredes de alvenaria","severidade_padrao":"M","causas":["Assentamentos diferenciais de fundações","Variações térmicas e higrométricas","Ausência de juntas de dilatação"],"solucoes":["Monitorização com fissurômetros antes de intervir","Se estabilizadas: selagem com argamassa de cal"],"notas_tecnicas":"Fissuras a 45° nos cantos de vãos sugerem assentamento diferencial."}]},{"id":"pavimentos","nome":"Pavimentos","anomalias":[{"id":"pav_01","nome":"Abatimento / assentamento do pavimento térreo","severidade_padrao":"G","causas":["Humidade do terreno causando erosão","Ausência de laje de betão"],"solucoes":["Demolição do pavimento afectado e análise do terreno","Execução de nova laje de betão armado sobre geotêxtil e tout-venant"],"notas_tecnicas":"Confirmar se abatimento é activo ou estabilizado."},{"id":"pav_02","nome":"Destacamento / som oco em revestimento","severidade_padrao":"L","causas":["Falta de aderência da betonilha ao suporte","Ausência de juntas de dilatação"],"solucoes":["Percussão para mapeamento das zonas ocas","Substituição selectiva das peças com défice de aderência"],"notas_tecnicas":"Em pavimentos radiantes verificar juntas de dilatação."}]},{"id":"instalacoes_sanitarias","nome":"Instalações Sanitárias","anomalias":[{"id":"san_01","nome":"Infiltrações em WC / zonas húmidas","severidade_padrao":"G","causas":["Impermeabilização degradada ou inexistente","Juntas de revestimento abertas"],"solucoes":["Remoção do revestimento e aplicação de membrana impermeável (sistema tanque)","Refechamento de juntas com vedante epoxídico"],"notas_tecnicas":"A membrana deve subir pelo menos 20 cm nas paredes."}]},{"id":"estrutura","nome":"Estrutura","anomalias":[{"id":"est_01","nome":"Fissuras em elementos de betão armado","severidade_padrao":"G","causas":["Corrosão de armaduras por carbonatação","Esforços excessivos","Assentamentos de fundações"],"solucoes":["Avaliação estrutural por engenheiro antes de qualquer intervenção","Injecção de fissuras com resina epoxídica"],"notas_tecnicas":"ATENÇÃO: fissuras em elementos estruturais requerem sempre avaliação por engenheiro."},{"id":"est_02","nome":"Paredes resistentes com fissuras de ligação","severidade_padrao":"M","causas":["Assentamentos diferenciais","Ausência de amarração entre paredes ortogonais"],"solucoes":["Monitorização prévia com fissurômetros","Reforço da ligação com varões injectados"],"notas_tecnicas":"Em alvenaria de pedra, fissuras podem estar estabilizadas há décadas."}]},{"id":"caixilharias_vaos","nome":"Caixilharias e Vãos","anomalias":[{"id":"cai_01","nome":"Infiltrações em caixilharia","severidade_padrao":"M","causas":["Degradação dos vedantes perimetrais","Caixilharia desapertada ou com folgas"],"solucoes":["Remoção e refechamento dos vedantes com silicone neutro","Regulação das ferragens e ajuste das folhas"],"notas_tecnicas":"Verificar se infiltração é pela caixilharia ou pela ligação caixilharia-parede."}]}]};
+const BD_DEFAULT={"versao":"1.0","zonas":[{"id":"fachadas","nome":"Fachadas","anomalias":[{"id":"fach_01","nome":"Fissuras no revestimento","severidade_padrao":"M","causas":["Retração hidráulica do reboco por secagem rápida na aplicação","Ciclos quente-frio com dilatação térmica diferencial","Movimentos diferenciais entre elementos estruturais e não estruturais","Falta de manutenção"],"solucoes":["Limpeza e selagem das fissuras com argamassa de cal ou produto elástico compatível","Aplicação de primário de consolidação e posterior pintura com tinta elástica","Em fissuras activas: corte em V, selagem com mástique elástico e remate"],"notas_tecnicas":"Distinguir fissuras passivas (estabilizadas) de activas (em evolução). Fissuras com largura > 0,3 mm devem ser reportadas ao projectista."},{"id":"fach_02","nome":"Infiltrações / humidade de precipitação","severidade_padrao":"G","causas":["Degradação ou ausência de selagem nas juntas de caixilharia","Revestimento de fachada fissurado ou com porosidade elevada","Junta de dilatação selada com material rígido ou degradado","Cornijas ou peitoris sem goteira"],"solucoes":["Inspecção e refechamento de juntas com mástique de poliuretano ou silicone neutro","Aplicação de hidrofugante de superfície em revestimentos porosos","Substituição da selagem da junta de dilatação por perfil elástico adequado","Execução ou reparação de goteiras em peitoris e cornijas"],"notas_tecnicas":"Identificar a origem exacta da infiltração antes de intervir."},{"id":"fach_03","nome":"Armaduras expostas / carbonatação","severidade_padrao":"G","causas":["Recobrimento insuficiente das armaduras na construção","Carbonatação do betão atingindo a armadura","Cloretos em zonas costeiras acelerando a corrosão"],"solucoes":["Remoção do betão degradado até 2 cm além da armadura exposta","Tratamento anticorrosivo das armaduras (primário epoxídico bicomponente)","Reposição do recobrimento com argamassa de reparação estrutural (classe R3/R4)"],"notas_tecnicas":"A extensão da corrosão pode ser superior à visível."},{"id":"fach_04","nome":"Destacamento / empolamento do revestimento","severidade_padrao":"M","causas":["Falta de aderência entre camadas de revestimento","Humidade retida entre suporte e revestimento","Aplicação sobre suporte contaminado"],"solucoes":["Percussão para mapeamento das zonas ocas e remoção selectiva","Limpeza e preparação do suporte","Aplicação de primário de aderência e reposição do revestimento"],"notas_tecnicas":"Utilizar percussão (martelo leve) para identificar extensão das zonas ocas."}]},{"id":"cobertura","nome":"Cobertura","anomalias":[{"id":"cob_01","nome":"Infiltrações pela cobertura","severidade_padrao":"G","causas":["Telhas partidas, deslocadas ou em falta","Degradação ou ausência de impermeabilização na zona de cumeeira, rincões e platibandas","Caleiras e rufos degradados ou mal executados"],"solucoes":["Inspecção completa e substituição de telhas danificadas","Reparação ou substituição de impermeabilização em pontos singulares","Substituição de caleiras e rufos degradados"],"notas_tecnicas":"Verificar estado da estrutura de suporte em coberturas inclinadas."},{"id":"cob_02","nome":"Estrutura de madeira degradada","severidade_padrao":"MG","causas":["Ataque de xilófagos (caruncho, térmitas)","Humidade permanente por infiltrações","Falta de ventilação da caixa de ar"],"solucoes":["Avaliação da extensão do dano — substituição parcial ou total","Tratamento das madeiras sãs com fungicida/insecticida de penetração profunda"],"notas_tecnicas":"Recomendar ensaio de resistógrafo em casos de dúvida."},{"id":"cob_03","nome":"Deformação excessiva da cobertura","severidade_padrao":"MG","causas":["Degradação da estrutura resistente","Sobrecargas não previstas"],"solucoes":["Escoramento de emergência se deformação for activa","Avaliação estrutural por engenheiro antes de qualquer intervenção"],"notas_tecnicas":"ATENÇÃO: deformação visível a olho nu deve ser tratada como situação de risco."}]},{"id":"paredes_interiores","nome":"Paredes Interiores","anomalias":[{"id":"par_01","nome":"Humidade de condensação","severidade_padrao":"M","causas":["Insuficiente isolamento térmico (pontes térmicas)","Ventilação inadequada dos espaços"],"solucoes":["Melhoria do isolamento térmico (reforço interior ou ETICS pelo exterior)","Instalação ou melhoria da ventilação mecânica controlada (VMC)"],"notas_tecnicas":"Distinguir humidade de condensação de infiltração."},{"id":"par_02","nome":"Humidade ascensional","severidade_padrao":"G","causas":["Ausência ou degradação da barreira corta-humidade","Lençol freático elevado"],"solucoes":["Injecção de resinas hidrofóbicas na base das paredes","Drenagem perimetral se causa for lençol freático elevado"],"notas_tecnicas":"Padrão: mancha com limite superior horizontal e aureola de sais."},{"id":"par_03","nome":"Fissuras em paredes de alvenaria","severidade_padrao":"M","causas":["Assentamentos diferenciais de fundações","Variações térmicas e higrométricas","Ausência de juntas de dilatação"],"solucoes":["Monitorização com fissurômetros antes de intervir","Se estabilizadas: selagem com argamassa de cal"],"notas_tecnicas":"Fissuras a 45° nos cantos de vãos sugerem assentamento diferencial."}]},{"id":"pavimentos","nome":"Pavimentos","anomalias":[{"id":"pav_01","nome":"Abatimento / assentamento do pavimento térreo","severidade_padrao":"G","causas":["Humidade do terreno causando erosão","Ausência de laje de betão"],"solucoes":["Demolição do pavimento afectado e análise do terreno","Execução de nova laje de betão armado sobre geotêxtil e tout-venant"],"notas_tecnicas":"Confirmar se abatimento é activo ou estabilizado."},{"id":"pav_02","nome":"Destacamento / som oco em revestimento","severidade_padrao":"L","causas":["Falta de aderência da betonilha ao suporte","Ausência de juntas de dilatação"],"solucoes":["Percussão para mapeamento das zonas ocas","Substituição selectiva das peças com défice de aderência"],"notas_tecnicas":"Em pavimentos radiantes verificar juntas de dilatação."}]},{"id":"instalacoes_sanitarias","nome":"Instalações Sanitárias","anomalias":[{"id":"san_01","nome":"Infiltrações em WC / zonas húmidas","severidade_padrao":"G","causas":["Impermeabilização degradada ou inexistente","Juntas de revestimento abertas"],"solucoes":["Remoção do revestimento e aplicação de membrana impermeável (sistema tanque)","Refechamento de juntas com vedante epoxídico"],"notas_tecnicas":"A membrana deve subir pelo menos 20 cm nas paredes."}]},{"id":"estrutura","nome":"Estrutura","anomalias":[{"id":"est_01","nome":"Fissuras em elementos de betão armado","severidade_padrao":"G","causas":["Corrosão de armaduras por carbonatação","Esforços excessivos","Assentamentos de fundações"],"solucoes":["Avaliação estrutural por engenheiro antes de qualquer intervention","Injecção de fissuras com resina epoxídica"],"notas_tecnicas":"ATENÇÃO: fissuras em elementos estruturais requerem sempre avaliação por engenheiro."},{"id":"est_02","nome":"Paredes resistentes com fissuras de ligação","severidade_padrao":"M","causas":["Assentamentos diferenciais","Ausência de amarração entre paredes ortogonais"],"solucoes":["Monitorização prévia com fissurômetros","Reforço da ligação com varões injectados"],"notas_tecnicas":"Em alvenaria de pedra, fissuras podem estar estabilizadas há décadas."}]},{"id":"caixilharias_vaos","nome":"Caixilharias e Vãos","anomalias":[{"id":"cai_01","nome":"Infiltrações em caixilharia","severidade_padrao":"M","causas":["Degradação dos vedantes perimetrais","Caixilharia desapertada ou com folgas"],"solucoes":["Remoção e refechamento dos vedantes com silicone neutro","Regulação das ferragens e ajuste das folhas"],"notas_tecnicas":"Verificar se infiltração é pela caixilharia ou pela ligação caixilharia-parede."}]}]};
 
 let bd=JSON.parse(localStorage.getItem('ce_bd'))||BD_DEFAULT;
 let consultoria=JSON.parse(localStorage.getItem('ce_consultoria'))||{info:{},anomalias:[]};
@@ -17,7 +17,6 @@ let isSaving=false;
 let toastTimer=null;
 let autoSaveTimer=null;
 
-// Registo PWA nativo
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
@@ -30,7 +29,18 @@ document.addEventListener('DOMContentLoaded',()=>{loadInfo();populateZonas();ren
 
 function setDefaultDate(){if(!document.getElementById('info-data').value){document.getElementById('info-data').value=new Date().toISOString().split('T')[0];saveInfo();}}
 
+// ALTERAÇÃO 2: Bloqueia a entrada no formulário se o Drive não estiver ativo
 function showScreen(name){
+  if (name === 'nova') {
+    const sUrl = localStorage.getItem('ce_script_url');
+    const fId = localStorage.getItem('ce_drive_folder_id');
+    if (!sUrl || !fId) {
+      showToast("⚠️ Google Drive por Sincronizar. Ir a Config.!");
+      showScreen('settings');
+      return;
+    }
+  }
+
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
@@ -119,25 +129,16 @@ function openAddAnomalia(){
   document.getElementById('add-anomalia-modal').classList.add('open');
   setTimeout(()=>document.getElementById('add-anomalia-input').focus(),100);
 }
-function closeAddAnomalia(){
-  document.getElementById('add-anomalia-modal').classList.remove('open');
-  document.getElementById('add-anomalia-input').value='';
-}
-
+function closeAddAnomalia(){document.getElementById('add-anomalia-modal').classList.remove('open');document.getElementById('add-anomalia-input').value='';}
 function confirmAddAnomalia(){
-  const nome = document.getElementById('add-anomalia-input').value.trim();
-  if(!nome) return;
-  const zid = document.getElementById('sel-zona').value;
-  const z = bd.zonas.find(x => x.id === zid);
-  if(!z) return;
-  const id = 'an_' + Date.now();
-  z.anomalias.push({id, nome, severidade_padrao:'M', causas:[], solucoes:[], notas_tecnicas:''});
-  localStorage.setItem('ce_bd', JSON.stringify(bd));
-  onZonaChange();
-  document.getElementById('sel-anomalia').value = id;
-  onAnomaliaChange();
-  closeAddAnomalia();
-  showToast('Anomalia "' + nome + '" adicionada ✓');
+  const nome=document.getElementById('add-anomalia-input').value.trim();if(!nome)return;
+  const zid=document.getElementById('sel-zona').value;
+  const z=bd.zonas.find(x=>x.id===zid);if(!z)return;
+  const id='an_'+Date.now();
+  z.anomalias.push({id,nome,severidade_padrao:'M',causas:[],solucoes:[],notas_tecnicas:''});
+  localStorage.setItem('ce_bd',JSON.stringify(bd));
+  onZonaChange();document.getElementById('sel-anomalia').value=id;onAnomaliaChange();
+  closeAddAnomalia();showToast('Anomalia "'+nome+'" adicionada ✓');
 }
 
 function setSev(sev){currentSev=sev;document.querySelectorAll('.sev-btn').forEach(b=>b.classList.toggle('active',b.dataset.sev===sev));}
@@ -181,19 +182,23 @@ function startRecognitionSession(){
   try{recognition.start();}catch(e){if(isRecording)setTimeout(startRecognitionSession,500);}
 }
 
+// ALTERAÇÃO 1: Executa uploads síncronos e redireciona automaticamente para a lista no fim de TUDO
 async function saveAnomalia(){
   if(isSaving)return;
   const zid=document.getElementById('sel-zona').value,aid=document.getElementById('sel-anomalia').value;
   if(!zid||!aid){showToast('Selecciona zona e anomalia');return;}
   if(!currentSev){showToast('Selecciona a severidade');return;}
+  
   isSaving=true;
   const btn=document.getElementById('btn-guardar-anomalia');
   if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  
   const z=bd.zonas.find(x=>x.id===zid),an=z.anomalias.find(a=>a.id===aid);
   const causasF=[...Array.from(selectedCausas).map(i=>an.causas[i]),...customCausas];
   const solucoesF=[...Array.from(selectedSolucoes).map(i=>an.solucoes[i]),...customSolucoes];
   const wasEditing=editingIdx>=0;
   const anomaliaNum=wasEditing?editingIdx+1:consultoria.anomalias.length+1;
+  
   const anomalia={
     id:wasEditing?consultoria.anomalias[editingIdx].id:Date.now(),
     zona:z.nome,zona_id:zid,anomalia_id:aid,anomalia_nome:an.nome,
@@ -202,26 +207,34 @@ async function saveAnomalia(){
     fotos:wasEditing?consultoria.anomalias[editingIdx].fotos:[],
     timestamp:new Date().toISOString()
   };
-  if(wasEditing)consultoria.anomalias[editingIdx]=anomalia;
+  
+  if(wasEditing) consultoria.anomalias[editingIdx]=anomalia;
   else consultoria.anomalias.push(anomalia);
   
+  // 1. Envia as fotos primeiro (Garante que o processo termina)
   if(currentPhotos.length>0){
     const sUrl=localStorage.getItem('ce_script_url');
     if(sUrl){
       showToast('A enviar fotos para Drive...');
       const refs=await uploadFotosDrive(anomalia,anomaliaNum);
       anomalia.fotos=[...anomalia.fotos,...refs];
-    }else{
-      setDriveLog('Fotos não enviadas: URL do Script em falta.','danger');
     }
   }
+  
   localStorage.setItem('ce_consultoria',JSON.stringify(consultoria));
-  await autoSaveToDrive(); // Envia o JSON imediatamente para o Drive
   updateHomeStats();
+  
+  // 2. CORREÇÃO DO BUG: Força o upload síncrono do JSON logo a seguir
+  showToast('A sincronizar JSON...');
+  await autoSaveToDrive();
+  
   isSaving=false;
   if(btn){btn.disabled=false;btn.style.opacity='';}
+  
   showToast(wasEditing?'Anomalia actualizada ✓':'Anomalia guardada ✓');
-  setTimeout(()=>showScreen('lista'),350);
+  
+  // Redireciona de imediato para a lista
+  showScreen('lista');
 }
 
 function resetNovaForm(){
@@ -377,10 +390,12 @@ async function uploadFotosDrive(anomalia,anomaliaNum){
 }
 
 function scheduleAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(autoSaveToDrive,3000);}
+
+// CORREÇÃO DO BLOQUEIO: Removida a barreira oculta que impedia o JSON de salvar no início
 async function autoSaveToDrive(){
   const sUrl=localStorage.getItem('ce_script_url');
   const fId=localStorage.getItem('ce_drive_folder_id');
-  if(!sUrl||!fId||!consultoria.anomalias.length)return;
+  if(!sUrl||!fId)return;
   
   const cr=(consultoria.info&&consultoria.info.cliente)?consultoria.info.cliente:'consultoria';
   const fn=cr.replace(/[^a-zA-Z0-9]/g,'_')+'_em_curso.json';
