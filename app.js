@@ -119,16 +119,25 @@ function openAddAnomalia(){
   document.getElementById('add-anomalia-modal').classList.add('open');
   setTimeout(()=>document.getElementById('add-anomalia-input').focus(),100);
 }
-function closeAddAnomalia(){document.getElementById('add-anomalia-modal').classList.remove('open');document.getElementById('add-anomalia-input').value='';}
+function closeAddAnomalia(){
+  document.getElementById('add-anomalia-modal').classList.remove('open');
+  document.getElementById('add-anomalia-input').value='';
+}
+
 function confirmAddAnomalia(){
-  const nome=document.getElementById('add-anomalia-input').value.trim();if(!nome)return;
-  const zid=document.getElementById('sel-zona').value;
-  const z=bd.zonas.find(x=>x.id===zid);if(!z)return;
-  const id='an_'+Date.now();
-  z.anomalias.push({id,nome,severidade_padrao:'M',causas:[],solucoes:[],notas_tecnicas:''});
-  localStorage.setItem('ce_bd',JSON.stringify(bd));
-  onZonaChange();document.getElementById('sel-anomalia').value=id;onAnomaliaChange();
-  closeAddAnomalia();showToast('Anomalia "'+nome+'" adicionada ✓');
+  const nome = document.getElementById('add-anomalia-input').value.trim();
+  if(!nome) return;
+  const zid = document.getElementById('sel-zona').value;
+  const z = bd.zonas.find(x => x.id === zid);
+  if(!z) return;
+  const id = 'an_' + Date.now();
+  z.anomalias.push({id, nome, severidade_padrao:'M', causas:[], solucoes:[], notas_tecnicas:''});
+  localStorage.setItem('ce_bd', JSON.stringify(bd));
+  onZonaChange();
+  document.getElementById('sel-anomalia').value = id;
+  onAnomaliaChange();
+  closeAddAnomalia();
+  showToast('Anomalia "' + nome + '" adicionada ✓');
 }
 
 function setSev(sev){currentSev=sev;document.querySelectorAll('.sev-btn').forEach(b=>b.classList.toggle('active',b.dataset.sev===sev));}
