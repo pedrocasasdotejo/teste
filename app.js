@@ -216,7 +216,7 @@ async function saveAnomalia(){
     }
   }
   localStorage.setItem('ce_consultoria',JSON.stringify(consultoria));
-  scheduleAutoSave();
+  await autoSaveToDrive(); // Envia o JSON imediatamente para o Drive
   updateHomeStats();
   isSaving=false;
   if(btn){btn.disabled=false;btn.style.opacity='';}
