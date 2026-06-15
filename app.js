@@ -25,7 +25,42 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-document.addEventListener('DOMContentLoaded',()=>{loadInfo();populateZonas();renderLista();updateHomeStats();setDefaultDate();loadCfg();checkSpeechAPI();});
+// Substitui a inicialização antiga por esta que puxa os dados do GitHub
+document.addEventListener('DOMContentLoaded', async () => {
+  loadInfo();
+  renderLista();
+  updateHomeStats();
+  setDefaultDate();
+  loadCfg();
+  checkSpeechAPI();
+  
+  // Carrega a Base de Dados a partir do GitHub de forma dinâmica
+  await carregarBDDoGitHub();
+  populateZonas(); 
+});
+
+async function carregarBDDoGitHub() {
+  // Descobre o caminho relativo do teu repositório GitHub Pages
+  const urlRemota = './anomalias_base_dados.json';
+  
+  try {
+    const resposta = await fetch(urlRemota);
+    if (resposta.ok) {
+      const bdNuvem = await resposta.json();
+      if (bdNuvem && bdNuvem.zonas) {
+        bd = bdNuvem;
+        localStorage.setItem('ce_bd', JSON.stringify(bd));
+        console.log('✓ Base de dados técnica atualizada via GitHub com sucesso.');
+        return;
+      }
+    }
+  } catch (erro) {
+    console.warn('Aviso: Não foi possível contactar o GitHub. A usar cópia local de segurança.', erro);
+  }
+
+  // Se falhar a rede, recorre à memória local existente
+  bd = JSON.parse(localStorage.getItem('ce_bd')) || BD_DEFAULT;
+}
 
 function setDefaultDate(){if(!document.getElementById('info-data').value){document.getElementById('info-data').value=new Date().toISOString().split('T')[0];saveInfo();}}
 
