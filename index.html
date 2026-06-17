@@ -167,6 +167,12 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
         <div style="text-align: center; flex: 1;"><div style="font-size: 22px; font-weight: 800;" id="home-count-an">0</div><div style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Patologias</div></div>
         <div style="text-align: center; flex: 1;"><div style="font-size: 22px; font-weight: 800;" id="home-count-foto">0</div><div style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Fotos</div></div>
         <div style="text-align: center; flex: 1;"><div style="font-size: 14px; font-weight: 800; padding-top: 6px;" id="home-data">—</div><div style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Data</div></div>
+    <div class="card" style="margin-top: 14px; border: 1px dashed var(--accent);">
+      <div class="card-title">Retomar Trabalho</div>
+      <p style="font-size: 12px; color: var(--text2); margin-bottom: 10px;">Ficou sem bateria ou quer continuar uma vistoria? Carregue o ficheiro JSON de backup aqui.</p>
+      <button class="btn btn-secondary" onclick="document.getElementById('importJSONInput').click()">📁 CARREGAR CONSULTORIA EM CURSO</button>
+      <input type="file" id="importJSONInput" accept=".json" onchange="importarJSON(event)" style="display:none">
+      </div>  
       </div>
     </div>
 
