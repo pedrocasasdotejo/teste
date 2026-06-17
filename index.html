@@ -17,9 +17,9 @@
   --border: rgba(50, 179, 197, 0.15);
   --border2: rgba(99, 102, 106, 0.2);
   --text: #333333;
-  --text2: #63666A;        /* Cinza Institucional */
+  --text2: #63666A;
   --text3: #94a3b8;
-  --accent: #32B3C5;       /* Azul Ciano Institucional */
+  --accent: #32B3C5;
   --accent-light: #e6f7f9;
   --danger: #ef4444;
   --danger-light: #fef2f2;
@@ -28,7 +28,6 @@
   --warn: #f59e0b;
   --warn-light: #fffbeb;
   
-  /* Severidades */
   --sev-ML: #64748b; --sev-ML-bg: #f1f5f9;
   --sev-L: #32B3C5;  --sev-L-bg: #e6f7f9;
   --sev-M: #f59e0b;  --sev-M-bg: #fffbeb;
@@ -42,36 +41,37 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { overscroll-behavior-y: none; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; padding-bottom: 80px; }
-
-/* CABEÇALHO COM LOGOTIPO */
-.header-logo {
-  background: var(--surface);
-  padding: 16px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 110;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-}
-.header-logo img {
-  max-height: 48px;
-  width: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.header-app { background: var(--accent); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: relative; }
-.header-title { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.header-btn { background: rgba(255,255,255,.2); border: none; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; padding-bottom: 80px; padding-top: 10px; }
 
 .screen { display: none; padding: 16px; max-width: 520px; margin: 0 auto; }
 .screen.active { display: block; }
 
-.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; }
 .card-title { font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 .card-title::before { content: ''; width: 4px; height: 14px; background: var(--accent); border-radius: 2px; }
+
+/* ESTILO DASHBOARD BOLD */
+.dashboard-main {
+  background: var(--surface) !important;
+  border: 2.5px solid var(--accent) !important;
+  padding: 20px 18px 18px !important;
+}
+.dashboard-logo {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  max-height: 32px;
+  width: auto;
+}
+.dashboard-stats-row {
+  display: flex; 
+  gap: 20px; 
+  margin-top: 18px; 
+  background: var(--accent);
+  color: #fff; 
+  padding: 14px; 
+  border-radius: 10px;
+}
 
 label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 6px; font-weight: 700; text-transform: uppercase; }
 select, input[type=text], input[type=date], textarea { 
@@ -84,7 +84,7 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
 .btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow); }
 .btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
 .btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger); }
-.btn-sm { padding: 8px 14px; font-size: 13px; width: auto; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
 
 .btn-plus { width: 40px; height: 40px; border-radius: 8px; border: none; background: var(--accent); color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
@@ -106,16 +106,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
 .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .photo-del { position: absolute; top: 4px; right: 4px; background: var(--danger); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; cursor: pointer; }
 
-/* CAIXA MULTIFAMILIAR DINÂMICA */
-.multi-box { 
-  background: var(--accent-light); 
-  border: 1px dashed var(--accent); 
-  padding: 14px; 
-  border-radius: var(--radius-sm); 
-  margin-top: 10px; 
-  display: none; 
-}
-
 .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
 .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 0; cursor: pointer; border: none; background: none; color: var(--text3); font-size: 11px; font-weight: 600; gap: 4px; }
 .nav-btn.active { color: var(--accent); }
@@ -126,11 +116,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
 .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #334155; color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 700; opacity: 0; transition: all 0.3s; z-index: 9999; }
 .toast.show { opacity: 1; }
 
-.drive-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-.drive-badge.connected { background: var(--success-light); color: var(--success); }
-.drive-badge.disconnected { background: var(--surface2); color: var(--text3); }
-
-/* CORREÇÃO CIRÚRGICA DOS MODAIS (NASCEM ESCONDIDOS) */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; }
 .modal-overlay.open { display: flex !important; }
 .modal { background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; width: 100%; max-height: 90vh; overflow-y: auto; padding: 20px 16px 32px; }
@@ -138,7 +123,23 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
 .add-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; }
 .add-modal.open { display: flex !important; }
 .add-modal-box { background: var(--surface); border-radius: var(--radius); padding: 20px; width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-.add-modal-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+
+/* ESTILOS ADICIONAIS DO TOPO DE ECRÃ */
+.header-app { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+.header-title { font-size: 16px; font-weight: 800; color: var(--text); }
+.header-btn { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 14px; cursor: pointer; }
+.multi-box { margin-top: 10px; }
+.anomalia-item { background: var(--surface); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer; }
+.anomalia-item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.anomalia-item-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.anomalia-item-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.sev-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.sev-badge.ML { background: var(--sev-ML-bg); color: var(--sev-ML); }
+.sev-badge.L { background: var(--sev-L-bg); color: var(--sev-L); }
+.sev-badge.M { background: var(--sev-M-bg); color: var(--sev-M); }
+.sev-badge.G { background: var(--sev-G-bg); color: var(--sev-G); }
+.sev-badge.MG { background: var(--sev-MG-bg); color: var(--sev-MG); }
+.empty { text-align: center; color: var(--text3); font-size: 14px; padding: 30px 0; }
 </style>
 </head>
 <body>
@@ -155,17 +156,18 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
   <button class="fab" onclick="showScreen('nova')" id="fab"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 
   <div class="screen active" id="screen-home">
-    <div class="card" style="background: linear-gradient(135deg, var(--accent) 0%, #259bb0 100%); color: #fff; border: none;">
-      <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; opacity: 0.8; margin-bottom: 4px;">Vistoria Casas do Tejo</div>
-      <div style="font-size: 22px; font-weight: 800; line-height: 1.2;" id="home-titulo">A carregar...</div>
-      <div style="font-size: 13px; opacity: 0.9; margin-top: 4px;" id="home-morada">Define o cliente abaixo para criar a pasta no Drive</div>
-      <div style="display: flex; gap: 20px; margin-top: 18px; background: rgba(255,255,255,0.15); padding: 14px; border-radius: 10px;">
+    <div class="card dashboard-main">
+      <img src="logo.png" class="dashboard-logo" alt="Logo">
+      <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 0.5px;">Vistoria Casas do Tejo</div>
+      <div style="font-size: 22px; font-weight: 800; line-height: 1.2; color: var(--accent); margin-top: 4px;" id="home-titulo">A carregar...</div>
+      <div style="font-size: 13px; color: var(--accent); opacity: 0.8; margin-top: 2px;" id="home-morada">Define o cliente abaixo para criar a pasta no Drive</div>
+      
+      <div class="dashboard-stats-row">
         <div style="text-align: center; flex: 1;"><div style="font-size: 22px; font-weight: 800;" id="home-count-an">0</div><div style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Patologias</div></div>
         <div style="text-align: center; flex: 1;"><div style="font-size: 22px; font-weight: 800;" id="home-count-foto">0</div><div style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Fotos</div></div>
         <div style="text-align: center; flex: 1;"><div style="font-size: 14px; font-weight: 800; padding-top: 6px;" id="home-data">—</div><div style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Data</div></div>  
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">Enquadramento Geral</div>
       <div style="margin-bottom: 12px;"><label>Cliente / Pasta Mãe no Drive</label><input type="text" id="info-cliente" placeholder="Ex: Condominio_Tejo_Lote4" oninput="saveInfo()"></div>
@@ -204,7 +206,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
       <div class="header-title" id="nova-screen-title">Nova Patologia</div>
       <button class="header-btn" onclick="saveAnomalia()">Guardar</button>
     </div>
-
     <div class="card">
       <div class="card-title">Localização Técnica</div>
       <div style="margin-bottom: 12px;">
@@ -214,8 +215,7 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
           <button class="btn-plus" onclick="openAddZona()">+</button>
         </div>
       </div>
-
-      <div id="campo-multifamiliar-container" class="multi-box">
+      <div id="campo-multifamiliar-container" class="multi-box" style="background:var(--accent-light); border:1px dashed var(--accent); padding:14px; border-radius:var(--radius-sm); margin-top:10px; display:none;">
         <label>Âmbito (Prédio Multifamiliar)</label>
         <select id="multifamiliar-tipo" onchange="onAmbitoMultifamiliarChange()" style="margin-bottom: 8px;">
           <option value="Zona Comum">Zona Comum (Geral do Prédio)</option>
@@ -223,7 +223,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
         </select>
         <input type="text" id="multifamiliar-detalhe" placeholder="Ex: 3.º Esquerdo / Fracção C">
       </div>
-
       <div style="margin-top: 12px;">
         <label>Tipo de Anomalia</label>
         <div style="display: flex; gap: 8px;">
@@ -232,7 +231,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">Gravidade & Diagnóstico</div>
       <div class="sev-grid">
@@ -246,7 +244,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
         <strong>Nota de Engenharia:</strong> <span id="nota-tecnica-text"></span>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">Causas & Reparação</div>
       <label>Causas Prováveis</label>
@@ -254,17 +251,16 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
       <div id="causas-custom-list"></div>
       <div style="display: flex; gap: 6px; margin-top: 10px;">
         <input type="text" id="causa-custom" placeholder="Outra causa...">
-        <button class="btn btn-secondary btn-sm" onclick="addCausaCustom()" style="padding: 0 15px;">+</button>
+        <button class="btn btn-secondary btn-sm" onclick="addCausaCustom()" style="padding:0 15px; width:auto;">+</button>
       </div>
       <label style="margin-top: 16px;">Método de Reparação</label>
       <div class="chips" id="solucoes-chips"></div>
       <div id="solucoes-custom-list"></div>
       <div style="display: flex; gap: 6px; margin-top: 10px;">
         <input type="text" id="solucao-custom" placeholder="Outra solução...">
-        <button class="btn btn-secondary btn-sm" onclick="addSolucaoCustom()" style="padding: 0 15px;">+</button>
+        <button class="btn btn-secondary btn-sm" onclick="addSolucaoCustom()" style="padding:0 15px; width:auto;">+</button>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">Evidências & Notas</div>
       <div style="display: flex; gap: 8px;">
@@ -275,11 +271,10 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
       <input type="file" id="photoGalleryInput" accept="image/*" multiple onchange="handlePhotos(event)" style="display:none">
       <div class="photo-grid" id="photos-grid"></div>
       <div style="margin-top: 16px; display: flex; gap: 8px; align-items: flex-start;">
-        <button class="btn btn-danger btn-sm" id="rec-btn" onclick="toggleRec()" style="padding: 10px;">🎤</button>
+        <button class="btn btn-danger btn-sm" id="rec-btn" onclick="toggleRec()" style="padding: 10px; width:auto;">🎤</button>
         <textarea id="obs-text" rows="3" placeholder="Observações específicas desta anomalia..."></textarea>
       </div>
     </div>
-
     <button class="btn btn-primary" id="btn-guardar-anomalia" onclick="saveAnomalia()" style="margin-bottom: 20px;">GUARDAR E SINCRONIZAR</button>
   </div>
 
@@ -296,7 +291,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
       <div class="card-title">Resumo da Auditoria</div>
       <div style="font-size: 13px; margin-bottom: 8px;">Cliente: <strong id="exp-cliente">—</strong></div>
       <div style="font-size: 13px;">Patologias: <strong id="exp-count">0</strong> | Fotos: <strong id="exp-fotos">0</strong></div>
-      <div class="drive-badge disconnected" id="drive-status-badge" style="margin-top: 12px;">Google Drive Desligado</div>
     </div>
     <button class="btn btn-primary" onclick="exportarJSON()" style="margin-bottom: 10px;">DESCARREGAR BACKUP (.JSON)</button>
     <button class="btn btn-secondary" onclick="gerarResumo()">GERAR RELATÓRIO DE TEXTO</button>
