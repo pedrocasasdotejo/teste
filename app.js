@@ -204,3 +204,40 @@ async function saveAnomalia() {
   };
   if (currentPhotos.length > 0) {
     showToast("A enviar fotos...");
+// --- FUNÇÃO PARA CARREGAR CONSULTORIA EM CURSO (RETOMAR TRABALHO) ---
+function importarJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const dadosImportados = JSON.parse(e.target.result);
+      
+      // Validação estrita da estrutura do ficheiro
+      if (!dadosImportados.info || !dadosImportados.anomalias) {
+        showToast("⚠️ Ficheiro JSON inválido para a Casas do Tejo.");
+        return;
+      }
+
+      // Substitui a consultoria atual na memória pelo ficheiro carregado
+      consultoria = dadosImportados;
+      localStorage.setItem('ce_consultoria', JSON.stringify(consultoria));
+
+      // Atualiza os ecrãs, estatísticas e repõe os campos do Enquadramento Geral
+      loadInfo();
+      updateHomeStats();
+      renderLista();
+      
+      showToast("✓ Consultoria retomada com sucesso!");
+      
+      // Limpa o input para permitir carregar o mesmo ficheiro se necessário
+      document.getElementById('importJSONInput').value = '';
+      
+    </div> catch (err) {
+      console.error(err);
+      showToast("❌ Erro ao ler o ficheiro JSON.");
+    }
+  };
+  reader.readAsText(file);
+}
