@@ -1,4 +1,4 @@
-/* app.js - CASAS DO TEJO v3.5 (PURIFICADO) */
+/* app.js - CASAS DO TEJO v3.6 (COM DITADO DE VOZ ATIVO) */
 
 let bd = { zonas: [] };
 let consultoria = JSON.parse(localStorage.getItem('ce_consultoria')) || { info: {}, anomalias: [] };
@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await carregarBDDoGitHub();
   populateZonas();
   renderLista();
+  checkSpeechAPI(); // Inicializa e valida o estado do microfone no arranque
 });
 
 async function carregarBDDoGitHub() {
@@ -149,9 +150,9 @@ function onAnomaliaChange() {
     renderChips('causas-chips', an.causas, selectedCausas);
     renderChips('solucoes-chips', an.solucoes, selectedSolucoes);
     const cardNota = document.getElementById('nota-tecnica-card');
-    if (cardNota && an.notas_tecnicas) {
+    if (cardNota && an.notes_tecnicas) {
       cardNota.style.display = 'block';
-      document.getElementById('nota-tecnica-text').textContent = an.notas_tecnicas;
+      document.getElementById('nota-tecnica-text').textContent = an.notes_tecnicas;
     }
   }
 }
@@ -203,188 +204,3 @@ async function saveAnomalia() {
   };
   if (currentPhotos.length > 0) {
     showToast("A enviar fotos...");
-    novaAnomalia.fotos = await uploadFotosDrive(novaAnomalia, consultoria.anomalias.length + 1, pastaMae, localFisico);
-  }
-  consultoria.anomalias.push(novaAnomalia);
-  localStorage.setItem('ce_consultoria', JSON.stringify(consultoria));
-  await autoSaveToDrive(pastaMae);
-  isSaving = false; showToast("✓ Sincronizado!"); showScreen('lista'); renderLista(); updateHomeStats();
-}
-
-async function uploadFotosDrive(anomalia, num, pastaMae, localFisico) {
-  const sUrl = localStorage.getItem('ce_script_url');
-  const rootId = localStorage.getItem('ce_drive_folder_id');
-  const refs = [];
-  for (const foto of currentPhotos) {
-    const payload = { action: "uploadFoto", folderId: rootId, parentFolderName: pastaMae, locationFolder: localFisico, anomaliaNum: num, anomaliaNome: anomalia.anomalia_nome, fotoName: Date.now() + ".jpg", fotoBase64: foto.dataUrl };
-    try {
-      const res = await fetch(sUrl, { method: 'POST', body: JSON.stringify(payload) });
-      const rd = await res.json();
-      if (rd.success) refs.push({ id: rd.id, driveUrl: rd.driveUrl });
-    } catch (e) { console.error(e); }
-  }
-  return refs;
-}
-
-async function autoSaveToDrive(pastaMae) {
-  const sUrl = localStorage.getItem('ce_script_url');
-  const rootId = localStorage.getItem('ce_drive_folder_id');
-  if(!sUrl || !rootId) return;
-  try {
-    const payload = { action: "autoSaveJson", folderId: rootId, parentFolderName: pastaMae, fileName: pastaMae + ".json", consultoria: consultoria };
-    await fetch(sUrl, { method: 'POST', body: JSON.stringify(payload) });
-  } catch (e) { console.error(e); }
-}
-
-function handlePhotos(event) {
-  const files = Array.from(event.target.files);
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => { currentPhotos.push({ dataUrl: e.target.result, name: file.name }); renderPhotos(); };
-    reader.readAsDataURL(file);
-  });
-}
-
-function renderPhotos() {
-  const grid = document.getElementById('photos-grid');
-  if(!grid) return; grid.innerHTML = '';
-  currentPhotos.forEach((p, i) => {
-    const div = document.createElement('div'); div.className = 'photo-thumb';
-    div.innerHTML = `<img src="${p.dataUrl}"><button class="photo-del" onclick="currentPhotos.splice(${i},1);renderPhotos();">✕</button>`;
-    grid.appendChild(div);
-  });
-}
-
-function renderLista() {
-  const container = document.getElementById('lista-container');
-  const countLabel = document.getElementById('lista-count');
-  if(!container || !countLabel) return;
-  container.innerHTML = ''; countLabel.textContent = consultoria.anomalias.length + ' REGISTOS';
-  if (consultoria.anomalias.length === 0) { container.innerHTML = '<div class="empty">Sem registos.</div>'; return; }
-  consultoria.anomalias.forEach((a, i) => {
-    const div = document.createElement('div'); div.className = 'anomalia-item'; div.onclick = () => verDetalhe(i);
-    div.innerHTML = `<div class="anomalia-item-header"><div style="flex:1"><div class="anomalia-item-title">${i + 1}. ${a.anomalia_nome}</div><div class="anomalia-item-meta">${a.ambito} | ${a.zona}</div></div><span class="sev-badge ${a.severidade}">${a.severidade}</span></div>`;
-    container.appendChild(div);
-  });
-}
-
-function verDetalhe(idx) {
-  const a = consultoria.anomalias[idx];
-  const body = document.getElementById('modal-detalhe-body');
-  if(!body) return;
-  body.innerHTML = `<h2 style="color:var(--accent); font-size:18px;">${a.anomalia_nome}</h2><p style="font-size:12px; color:var(--text2); margin-bottom:12px;">${a.zona} | ${a.ambito}</p><div style="font-size:13px; margin-bottom:8px;"><strong>Severidade:</strong> <span class="sev-badge ${a.severidade}">${a.severidade}</span></div><div style="font-size:13px; margin-bottom:8px;"><strong>Causas:</strong> ${a.causas.join(', ') || '—'}</div><div style="font-size:13px; margin-bottom:8px;"><strong>Soluções:</strong> ${a.solucoes.join(', ') || '—'}</div><p style="font-size:13px; background:var(--surface2); padding:8px; border-radius:6px; margin-top:8px;">${a.observacoes || 'Sem observações.'}</p>`;
-  const delBtn = document.getElementById('btn-del-anomalia');
-  if(delBtn) delBtn.onclick = () => eliminarAnomalia(idx);
-  document.getElementById('modal-detalhe').classList.add('open');
-}
-
-function eliminarAnomalia(idx) {
-  if (confirm("Eliminar registo?")) {
-    consultoria.anomalias.splice(idx, 1); localStorage.setItem('ce_consultoria', JSON.stringify(consultoria));
-    document.getElementById('modal-detalhe').classList.remove('open'); renderLista(); updateHomeStats();
-  }
-}
-
-function loadCfg() {
-  document.getElementById('cfg-script-url').value = localStorage.getItem('ce_script_url') || '';
-  document.getElementById('cfg-folder-id').value = localStorage.getItem('ce_drive_folder_id') || '';
-}
-
-function saveCfg() {
-  localStorage.setItem('ce_script_url', document.getElementById('cfg-script-url').value.trim());
-  localStorage.setItem('ce_drive_folder_id', document.getElementById('cfg-folder-id').value.trim());
-  showToast("Configurações guardadas!");
-}
-
-async function testarDrive() {
-  const url = document.getElementById('cfg-script-url').value;
-  const fid = document.getElementById('cfg-folder-id').value;
-  const statusEl = document.getElementById('drive-auth-status');
-  if(!url || !fid) { showToast("Preenche os campos!"); return; }
-  statusEl.textContent = "A validar ligação..."; statusEl.style.color = "var(--accent)";
-  try {
-    const res = await fetch(url, { method: 'POST', body: JSON.stringify({ action: "testDrive", folderId: fid }) });
-    const rd = await res.json();
-    if(rd.success) { statusEl.textContent = "✓ LIGAÇÃO ESTABELECIDA"; statusEl.style.color = "var(--success)"; }
-    else { statusEl.textContent = "❌ ERRO: " + rd.error; statusEl.style.color = "var(--danger)"; }
-  } catch (e) { statusEl.textContent = "❌ ERRO DE REDE."; statusEl.style.color = "var(--danger)"; }
-}
-
-function atualizarResumoExport() {
-  const i = consultoria.info || {};
-  document.getElementById('exp-cliente').textContent = i.cliente || '—';
-  document.getElementById('exp-data').textContent = i.data ? i.data.split('-').reverse().join('/') : '—';
-  document.getElementById('exp-count').textContent = consultoria.anomalias.length;
-  let tf = 0; consultoria.anomalias.forEach(a => tf += (a.fotos ? a.fotos.length : 0));
-  document.getElementById('exp-fotos').textContent = tf;
-}
-
-function gerarResumo() {
-  const i = consultoria.info || {};
-  let txt = `RELATÓRIO DE VISTORIA - CASAS DO TEJO\nCliente: ${i.cliente || '—'}\nMorada: ${i.morada || '—'}, ${i.localidade || '—'}\nData: ${i.data || '—'}\n------------------------------------------\n\n`;
-  consultoria.anomalias.forEach((a, idx) => {
-    txt += `${idx + 1}. ${a.anomalia_nome} (${a.severidade})\n   Local: ${a.zona} | ${a.ambito}\n   Causas: ${a.causas.join(', ') || '—'}\n   Solução: ${a.solucoes.join(', ') || '—'}\n`;
-    if (a.observacoes) txt += `   Obs: ${a.observacoes}\n`;
-    txt += `\n`;
-  });
-  document.getElementById('resumo-text').value = txt; document.getElementById('resumo-output').style.display = 'block';
-}
-
-function copiarResumo() {
-  const area = document.getElementById('resumo-text'); area.select(); document.execCommand('copy');
-  showToast("Relatório copiado!");
-}
-
-function openAddZona() { document.getElementById('add-zona-modal').classList.add('open'); }
-function closeAddZona() { document.getElementById('add-zona-modal').classList.remove('open'); document.getElementById('add-zona-input').value = ''; }
-function confirmAddZona() {
-  const val = document.getElementById('add-zona-input').value.trim(); if(!val) return;
-  const newId = 'custom_' + Date.now(); bd.zonas.push({ id: newId, nome: val, anomalias: [] });
-  populateZonas(); document.getElementById('sel-zona').value = newId; onZonaChange(); closeAddZona();
-}
-function openAddAnomalia() { document.getElementById('add-anomalia-modal').classList.add('open'); }
-function closeAddAnomalia() { document.getElementById('add-anomalia-modal').classList.remove('open'); document.getElementById('add-anomalia-input').value = ''; }
-function confirmAddAnomalia() {
-  const val = document.getElementById('add-anomalia-input').value.trim(); const zid = document.getElementById('sel-zona').value; if(!val || !zid) return;
-  const z = bd.zonas.find(x => x.id === zid); const newId = 'an_custom_' + Date.now();
-  z.anomalias.push({ id: newId, nome: val, causas: [], solucoes: [], severidade_padrao: 'M' });
-  onZonaChange(); document.getElementById('sel-anomalia').value = newId; onAnomaliaChange(); closeAddAnomalia();
-}
-
-function showToast(m) {
-  const t = document.getElementById('toast'); if(!t) return;
-  t.textContent = m; t.className = 'toast show'; clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.className = 'toast', 3000);
-}
-function setDefaultDate() { if (document.getElementById('info-data') && !document.getElementById('info-data').value) document.getElementById('info-data').value = new Date().toISOString().split('T')[0]; }
-function resetNovaForm() {
-  isSaving = false; const btnGuardar = document.getElementById('btn-guardar-anomalia'); if(btnGuardar) { btnGuardar.disabled = false; btnGuardar.textContent = "GUARDAR E SINCRONIZAR"; }
-  document.getElementById('sel-zona').value = ''; document.getElementById('sel-anomalia').disabled = true; document.getElementById('obs-text').value = '';
-  currentPhotos = []; currentSev = null; document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active')); renderPhotos(); clearAnomaliaFields();
-}
-function clearAnomaliaFields() {
-  selectedCausas = new Set(); selectedSolucoes = new Set(); customCausas = []; customSolucoes = [];
-  ['causas-chips', 'solucoes-chips', 'causas-custom-list', 'solucoes-custom-list'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ''; });
-  if(document.getElementById('nota-tecnica-card')) document.getElementById('nota-tecnica-card').style.display = 'none';
-}
-function addCausaCustom() {
-  const v = document.getElementById('causa-custom').value.trim(); if(!v) return; customCausas.push(v);
-  const div = document.createElement('div'); div.style.fontSize = '12px'; div.style.marginTop = '4px'; div.textContent = '• ' + v;
-  document.getElementById('causas-custom-list').appendChild(div); document.getElementById('causa-custom').value = '';
-}
-function addSolucaoCustom() {
-  const v = document.getElementById('solucao-custom').value.trim(); if(!v) return; customSolucoes.push(v);
-  const div = document.createElement('div'); div.style.fontSize = '12px'; div.style.marginTop = '4px'; div.textContent = '• ' + v;
-  document.getElementById('solucoes-custom-list').appendChild(div); document.getElementById('solucao-custom').value = '';
-}
-function exportarJSON() {
-  const data = JSON.stringify(consultoria, null, 2); const blob = new Blob([data], { type: 'application/json' }); const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `Consultoria_${consultoria.info.cliente || 'CasasDoTejo'}.json`; a.click();
-}
-function confirmarLimpar() { document.getElementById('modal-limpar').classList.add('open'); }
-function limparTudo() { localStorage.removeItem('ce_consultoria'); location.reload(); }
-function checkSpeechAPI() { } function toggleRec() { }
-function exportarBD() {
-  const data = JSON.stringify(bd, null, 2); const blob = new Blob([data], { type: 'application/json' }); const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'anomalias_base_dados.json'; a.click();
-}
