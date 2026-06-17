@@ -1,4 +1,4 @@
-/* app.js - CASAS DO TEJO v3.7 (UNIFICADO & CORRIGIDO) */
+/* app.js - CASAS DO TEJO v3.7 (PRODUÇÃO EM CONFORTO) */
 
 let bd = { zonas: [] };
 let consultoria = JSON.parse(localStorage.getItem('ce_consultoria')) || { info: {}, anomalias: [] };
@@ -88,7 +88,6 @@ function saveInfo() {
   updateHomeStats();
 }
 
-// Repõe os dados nos inputs do Enquadramento Geral
 function loadInfo() {
   const i = consultoria.info || {};
   document.getElementById('info-cliente').value = i.cliente || '';
@@ -392,7 +391,6 @@ function exportarBD() {
   const a = document.createElement('a'); a.href = url; a.download = 'anomalias_base_dados.json'; a.click();
 }
 
-// --- FUNÇÃO PARA CARREGAR CONSULTORIA EM CURSO (VERSÃO CORRIGIDA) ---
 function importarJSON(event) {
   const file = event.target.files[0];
   if (!file) { showToast("⚠️ Nenhum ficheiro selecionado."); return; }
@@ -420,7 +418,6 @@ function importarJSON(event) {
   reader.readAsText(file);
 }
 
-// --- SISTEMA NATIVO DE DITADO DE VOZ (WEB SPEECH API) ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 
