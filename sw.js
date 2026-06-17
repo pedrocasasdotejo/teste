@@ -1,6 +1,6 @@
-/* sw.js - SERVICE WORKER CASAS DO TEJO v4.0 (FORÇAR RESET) */
+/* sw.js - SERVICE WORKER CASAS DO TEJO v4.2 (ESTÁVEL) */
 
-const CACHE_NAME = 'casas-do-tejo-v4'; // <-- Mudámos para v4 para quebrar o ecrã em branco!
+const CACHE_NAME = 'casas-do-tejo-v4-2';
 
 const ASSETS = [
   './',
