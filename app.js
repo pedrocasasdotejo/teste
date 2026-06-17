@@ -1,5 +1,5 @@
-/* app.js - CASAS DO TEJO v3.3 (CORRIGIDO E COMPLETO)
-   Lógica: Sincronização GitHub + Pasta Mãe Drive + Navegação Sem Quebras
+/* app.js - CASAS DO TEJO v3.4 (REPARADO & ESTÁVEL)
+   Lógica: Navegação livre + Validação de Drive condicional + Pasta Mãe
 */
 
 // --- ESTADO GLOBAL DA APLICAÇÃO ---
@@ -34,59 +34,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 // --- SINCRONIZAÇÃO COM GITHUB ---
 async function carregarBDDoGitHub() {
   const el = document.getElementById('bd-status');
-  if(el) el.textContent = '✓ Modo de Teste Interno Ativo';
+  if(el) el.textContent = 'A sincronizar com o GitHub...';
   
-  // Criamos uma mini base de dados artificial direta no código
-  bd = {
-    versao: "3.0_Teste",
-    zonas: [
-      {
-        id: "zona_teste",
-        nome: "Zona de Teste Casas do Tejo",
-        anomalias: [
-          {
-            id: "an_teste",
-            nome: "Fissura de Teste Mecânico",
-            severidade_padrao: "M",
-            causas: ["Causa de teste 1"],
-            solucoes: ["Solução de teste 1"]
-          }
-        ]
-      }
-    ]
-  };
-  localStorage.setItem('ce_bd', JSON.stringify(bd));
+  const timestamp = new Date().getTime();
+  const urlGitHub = './anomalias_base_dados.json?v=' + timestamp;
+  
+  try {
+    const res = await fetch(urlGitHub, { cache: "no-store" });
+    if (res.ok) {
+      bd = await res.json();
+      localStorage.setItem('ce_bd', JSON.stringify(bd));
+      if(el) el.textContent = '✓ Tabela Técnico-Patológica Ativa';
+    }
+  } catch (err) {
+    console.warn('Usando cópia local da BD.');
+    bd = JSON.parse(localStorage.getItem('ce_bd')) || { zonas: [] };
+    if(el) el.textContent = '⚠️ Modo Offline (Cópia Local)';
+  }
 }
 
-// --- NAVEGAÇÃO ENTRE ECRÃS ---
+// --- NAVEGAÇÃO ENTRE ECRÃS (CORRIGIDA) ---
 function showScreen(name) {
+  // A validação do Drive SÓ BLOQUEIA se tentares entrar no ecrã de registar nova anomalia
   if (name === 'nova') {
     const sUrl = localStorage.getItem('ce_script_url');
     const fId = localStorage.getItem('ce_drive_folder_id');
     if (!sUrl || !fId) {
-      showToast("⚠️ Configura o Drive primeiro nas Configurações!");
-      showScreen('settings');
+      showToast("⚠️ Configura o URL do Script e o ID da pasta nas Configurações!");
+      // Força a ida para as configurações sem criar loop
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-settings').classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('nav-settings').classList.add('active');
+      document.getElementById('fab').style.display = 'none';
       return;
     }
     
-    // Lógica Multifamiliar: Mostra ou esconde campos
+    // Lógica Multifamiliar dinâmica
     const tipo = document.getElementById('info-tipo').value;
     const multiBox = document.getElementById('campo-multifamiliar-container');
-    if (tipo === 'Habitação multifamiliar') {
-      multiBox.style.display = 'block';
-      onAmbitoMultifamiliarChange();
-    } else {
-      multiBox.style.display = 'none';
+    if (multiBox) {
+      multiBox.style.display = (tipo === 'Habitação multifamiliar') ? 'block' : 'none';
     }
     if (editingIdx === -1) resetNovaForm();
   }
 
-  // Atualiza visualmente os ecrãs
+  // Executa a navegação visual de forma limpa nos restantes botões
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById('screen-' + name);
   if(target) target.classList.add('active');
 
-  // Atualiza os botões da barra inferior
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const m = { home: 'nav-home', lista: 'nav-anomalias', export: 'nav-export', settings: 'nav-settings' };
   if (m[name]) {
@@ -94,18 +91,16 @@ function showScreen(name) {
     if(navBtn) navBtn.classList.add('active');
   }
 
-  // Gere o botão flutuante (+)
   const fab = document.getElementById('fab');
   if(fab) fab.style.display = (name === 'nova' || name === 'settings') ? 'none' : 'flex';
 
-  // Atualiza resumos se for para o ecrã de exportação
   if(name === 'export') atualizarResumoExport();
 }
 
 function onAmbitoMultifamiliarChange() {
   const tipo = document.getElementById('multifamiliar-tipo').value;
   const detalheInput = document.getElementById('multifamiliar-detalhe');
-  detalheInput.style.display = (tipo === 'Fracção') ? 'block' : 'none';
+  if(detalheInput) detalheInput.style.display = (tipo === 'Fracção') ? 'block' : 'none';
 }
 
 // --- GESTÃO DE DADOS GERAIS ---
@@ -146,6 +141,7 @@ function updateHomeStats() {
 // --- GESTÃO DE ANOMALIAS ---
 function populateZonas() {
   const sel = document.getElementById('sel-zona');
+  if(!sel) return;
   sel.innerHTML = '<option value="">— Seleccionar zona —</option>';
   if(bd && bd.zonas) {
     bd.zonas.forEach(z => {
@@ -160,6 +156,7 @@ function populateZonas() {
 function onZonaChange() {
   const zid = document.getElementById('sel-zona').value;
   const sa = document.getElementById('sel-anomalia');
+  if(!sa) return;
   sa.innerHTML = '';
   if (!zid) {
     sa.disabled = true;
@@ -191,8 +188,9 @@ function onAnomaliaChange() {
     if(an.severidade_padrao) setSev(an.severidade_padrao);
     renderChips('causas-chips', an.causas, selectedCausas);
     renderChips('solucoes-chips', an.solucoes, selectedSolucoes);
-    if (an.notas_tecnicas) {
-      document.getElementById('nota-tecnica-card').style.display = 'block';
+    const cardNota = document.getElementById('nota-tecnica-card');
+    if (cardNota && an.notas_tecnicas) {
+      cardNota.style.display = 'block';
       document.getElementById('nota-tecnica-text').textContent = an.notas_tecnicas;
     }
   }
@@ -207,6 +205,7 @@ function setSev(sev) {
 
 function renderChips(containerId, items, selectionSet) {
   const container = document.getElementById(containerId);
+  if(!container) return;
   container.innerHTML = '';
   if(!items) return;
   items.forEach((text, idx) => {
@@ -231,8 +230,7 @@ async function saveAnomalia() {
 
   isSaving = true;
   const btn = document.getElementById('btn-guardar-anomalia');
-  btn.disabled = true; 
-  btn.textContent = "A sincronizar...";
+  if(btn) { btn.disabled = true; btn.textContent = "A sincronizar..."; }
 
   const info = consultoria.info || {};
   const pastaMae = (info.cliente || "Consultoria").replace(/\s+/g, '_') + "_" + (info.data || "SemData").replace(/-/g, '_');
@@ -309,6 +307,7 @@ async function uploadFotosDrive(anomalia, num, pastaMae, localFisico) {
 async function autoSaveToDrive(pastaMae) {
   const sUrl = localStorage.getItem('ce_script_url');
   const rootId = localStorage.getItem('ce_drive_folder_id');
+  if(!sUrl || !rootId) return;
   try {
     const payload = {
       action: "autoSaveJson",
@@ -336,6 +335,7 @@ function handlePhotos(event) {
 
 function renderPhotos() {
   const grid = document.getElementById('photos-grid');
+  if(!grid) return;
   grid.innerHTML = '';
   currentPhotos.forEach((p, i) => {
     const div = document.createElement('div');
@@ -379,6 +379,7 @@ function renderLista() {
 function verDetalhe(idx) {
   const a = consultoria.anomalias[idx];
   const body = document.getElementById('modal-detalhe-body');
+  if(!body) return;
   body.innerHTML = `
     <h2 style="color:var(--accent); font-size:18px;">${a.anomalia_nome}</h2>
     <p style="font-size:12px; color:var(--text2); margin-bottom:12px;">${a.zona} | ${a.ambito}</p>
@@ -387,7 +388,8 @@ function verDetalhe(idx) {
     <div style="font-size:13px; margin-bottom:8px;"><strong>Soluções:</strong> ${a.solucoes.join(', ') || '—'}</div>
     <p style="font-size:13px; background:var(--surface2); padding:8px; border-radius:6px; margin-top:8px;">${a.observacoes || 'Sem observações.'}</p>
   `;
-  document.getElementById('btn-del-anomalia').onclick = () => eliminarAnomalia(idx);
+  const delBtn = document.getElementById('btn-del-anomalia');
+  if(delBtn) delBtn.onclick = () => eliminarAnomalia(idx);
   document.getElementById('modal-detalhe').classList.add('open');
 }
 
@@ -511,8 +513,8 @@ function showToast(m) {
 function setDefaultDate() { if (document.getElementById('info-data') && !document.getElementById('info-data').value) document.getElementById('info-data').value = new Date().toISOString().split('T')[0]; }
 function resetNovaForm() {
   isSaving = false;
-  document.getElementById('btn-guardar-anomalia').disabled = false;
-  document.getElementById('btn-guardar-anomalia').textContent = "GUARDAR E SINCRONIZAR";
+  const btnGuardar = document.getElementById('btn-guardar-anomalia');
+  if(btnGuardar) { btnGuardar.disabled = false; btnGuardar.textContent = "GUARDAR E SINCRONIZAR"; }
   document.getElementById('sel-zona').value = '';
   document.getElementById('sel-anomalia').disabled = true;
   document.getElementById('obs-text').value = '';
@@ -538,4 +540,27 @@ function addCausaCustom() {
 function addSolucaoCustom() {
   const v = document.getElementById('solucao-custom').value.trim();
   if(!v) return; customSolucoes.push(v);
-  const div = document.createElement('div'); div.style.fontSize = '12px'; div.style.marginTop = '4px'; div
+  const div = document.createElement('div'); div.style.fontSize = '12px'; div.style.marginTop = '4px'; div.textContent = '• ' + v;
+  document.getElementById('solucoes-custom-list').appendChild(div);
+  document.getElementById('solucao-custom').value = '';
+}
+function exportarJSON() {
+  const data = JSON.stringify(consultoria, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `Consultoria_${consultoria.info.cliente || 'CasasDoTejo'}.json`;
+  a.click();
+}
+function confirmarLimpar() { document.getElementById('modal-limpar').classList.add('open'); }
+function limparTudo() { localStorage.removeItem('ce_consultoria'); location.reload(); }
+function checkSpeechAPI() { }
+function toggleRec() { showToast("Ditado de voz desativado nesta versão para estabilidade."); }
+function exportarBD() {
+  const data = JSON.stringify(bd, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'anomalias_base_dados.json';
+  a.click();
+}
