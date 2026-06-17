@@ -34,23 +34,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 // --- SINCRONIZAÇÃO COM GITHUB ---
 async function carregarBDDoGitHub() {
   const el = document.getElementById('bd-status');
-  if(el) el.textContent = 'A sincronizar com o GitHub...';
+  if(el) el.textContent = '✓ Modo de Teste Interno Ativo';
   
-  const timestamp = new Date().getTime();
-  const urlGitHub = './anomalias_base_dados.json?v=' + timestamp;
-  
-  try {
-    const res = await fetch(urlGitHub, { cache: "no-store" });
-    if (res.ok) {
-      bd = await res.json();
-      localStorage.setItem('ce_bd', JSON.stringify(bd));
-      if(el) el.textContent = '✓ Tabela Técnica Casas do Tejo ativa';
-    }
-  } catch (err) {
-    console.warn('Usando cópia local da BD.');
-    bd = JSON.parse(localStorage.getItem('ce_bd')) || { zonas: [] };
-    if(el) el.textContent = '⚠️ Modo Offline (Cópia Local)';
-  }
+  // Criamos uma mini base de dados artificial direta no código
+  bd = {
+    versao: "3.0_Teste",
+    zonas: [
+      {
+        id: "zona_teste",
+        nome: "Zona de Teste Casas do Tejo",
+        anomalias: [
+          {
+            id: "an_teste",
+            nome: "Fissura de Teste Mecânico",
+            severidade_padrao: "M",
+            causas: ["Causa de teste 1"],
+            solucoes: ["Solução de teste 1"]
+          }
+        ]
+      }
+    ]
+  };
+  localStorage.setItem('ce_bd', JSON.stringify(bd));
 }
 
 // --- NAVEGAÇÃO ENTRE ECRÃS ---
