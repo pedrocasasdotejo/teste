@@ -1,6 +1,5 @@
-/* 
-   app.js - CASAS DO TEJO v3.2 (VERSÃO FINAL INTEGRAL)
-   Lógica: Sincronização GitHub + Pasta Mãe Drive + Navegação Completa
+/* app.js - CASAS DO TEJO v3.3 (CORRIGIDO E COMPLETO)
+   Lógica: Sincronização GitHub + Pasta Mãe Drive + Navegação Sem Quebras
 */
 
 // --- ESTADO GLOBAL DA APLICAÇÃO ---
@@ -56,7 +55,6 @@ async function carregarBDDoGitHub() {
 
 // --- NAVEGAÇÃO ENTRE ECRÃS ---
 function showScreen(name) {
-  // Se for para criar anomalia, verifica se o Drive está configurado
   if (name === 'nova') {
     const sUrl = localStorage.getItem('ce_script_url');
     const fId = localStorage.getItem('ce_drive_folder_id');
@@ -144,12 +142,14 @@ function updateHomeStats() {
 function populateZonas() {
   const sel = document.getElementById('sel-zona');
   sel.innerHTML = '<option value="">— Seleccionar zona —</option>';
-  bd.zonas.forEach(z => {
-    const opt = document.createElement('option');
-    opt.value = z.id;
-    opt.textContent = z.nome;
-    sel.appendChild(opt);
-  });
+  if(bd && bd.zonas) {
+    bd.zonas.forEach(z => {
+      const opt = document.createElement('option');
+      opt.value = z.id;
+      opt.textContent = z.nome;
+      sel.appendChild(opt);
+    });
+  }
 }
 
 function onZonaChange() {
@@ -230,10 +230,8 @@ async function saveAnomalia() {
   btn.textContent = "A sincronizar...";
 
   const info = consultoria.info || {};
-  // Nome da Pasta Mãe (Ex: Cliente_Data)
   const pastaMae = (info.cliente || "Consultoria").replace(/\s+/g, '_') + "_" + (info.data || "SemData").replace(/-/g, '_');
   
-  // Localização Física (Fração ou Zona Comum)
   let localFisico = "Geral";
   if (info.tipo === 'Habitação multifamiliar') {
     const ambito = document.getElementById('multifamiliar-tipo').value;
@@ -261,7 +259,6 @@ async function saveAnomalia() {
     ambito: localFisico
   };
 
-  // Upload das fotos
   if (currentPhotos.length > 0) {
     showToast("A enviar fotos para o Drive...");
     novaAnomalia.fotos = await uploadFotosDrive(novaAnomalia, totalJaExistente + 1, pastaMae, localFisico);
@@ -270,7 +267,6 @@ async function saveAnomalia() {
   consultoria.anomalias.push(novaAnomalia);
   localStorage.setItem('ce_consultoria', JSON.stringify(consultoria));
   
-  // Auto-save do JSON na pasta do cliente
   await autoSaveToDrive(pastaMae);
 
   isSaving = false;
@@ -348,6 +344,8 @@ function renderPhotos() {
 function renderLista() {
   const container = document.getElementById('lista-container');
   const countLabel = document.getElementById('lista-count');
+  if(!container || !countLabel) return;
+  
   container.innerHTML = '';
   countLabel.textContent = consultoria.anomalias.length + ' REGISTOS';
 
@@ -415,3 +413,124 @@ async function testarDrive() {
   const fid = document.getElementById('cfg-folder-id').value;
   const statusEl = document.getElementById('drive-auth-status');
   if(!url || !fid) { showToast("Preenche os campos!"); return; }
+  
+  statusEl.textContent = "A validar ligação...";
+  statusEl.style.color = "var(--accent)";
+  
+  try {
+    const res = await fetch(url, { method: 'POST', body: JSON.stringify({ action: "testDrive", folderId: fid }) });
+    const rd = await res.json();
+    if(rd.success) {
+      statusEl.textContent = "✓ LIGAÇÃO ESTABELECIDA COM SUCESSO";
+      statusEl.style.color = "var(--success)";
+    } else {
+      statusEl.textContent = "❌ ERRO: " + rd.error;
+      statusEl.style.color = "var(--danger)";
+    }
+  } catch (e) {
+    statusEl.textContent = "❌ ERRO DE REDE: Verifica as permissões 'Anyone' no Script.";
+    statusEl.style.color = "var(--danger)";
+  }
+}
+
+function atualizarResumoExport() {
+  const i = consultoria.info || {};
+  document.getElementById('exp-cliente').textContent = i.cliente || '—';
+  document.getElementById('exp-data').textContent = i.data ? i.data.split('-').reverse().join('/') : '—';
+  document.getElementById('exp-count').textContent = consultoria.anomalias.length;
+  let tf = 0;
+  consultoria.anomalias.forEach(a => tf += (a.fotos ? a.fotos.length : 0));
+  document.getElementById('exp-fotos').textContent = tf;
+}
+
+function gerarResumo() {
+  const i = consultoria.info || {};
+  let txt = `RELATÓRIO DE VISTORIA - CASAS DO TEJO\n`;
+  txt += `Cliente: ${i.cliente || '—'}\nMorada: ${i.morada || '—'}, ${i.localidade || '—'}\nData: ${i.data || '—'}\n`;
+  txt += `------------------------------------------\n\n`;
+  consultoria.anomalias.forEach((a, idx) => {
+    txt += `${idx + 1}. ${a.anomalia_nome} (${a.severidade})\n`;
+    txt += `   Local: ${a.zona} | ${a.ambito}\n`;
+    txt += `   Causas: ${a.causas.join(', ') || '—'}\n`;
+    txt += `   Solução: ${a.solucoes.join(', ') || '—'}\n`;
+    if (a.observacoes) txt += `   Obs: ${a.observacoes}\n`;
+    txt += `\n`;
+  });
+  document.getElementById('resumo-text').value = txt;
+  document.getElementById('resumo-output').style.display = 'block';
+}
+
+function copiarResumo() {
+  const area = document.getElementById('resumo-text');
+  area.select();
+  document.execCommand('copy');
+  showToast("Relatório copiado para a área de transferência!");
+}
+
+// --- ADICIONAR ZONAS/ANOMALIAS MANUAIS ---
+function openAddZona() { document.getElementById('add-zona-modal').classList.add('open'); }
+function closeAddZona() { document.getElementById('add-zona-modal').classList.remove('open'); document.getElementById('add-zona-input').value = ''; }
+function confirmAddZona() {
+  const val = document.getElementById('add-zona-input').value.trim();
+  if(!val) return;
+  const newId = 'custom_' + Date.now();
+  bd.zonas.push({ id: newId, nome: val, anomalias: [] });
+  populateZonas();
+  document.getElementById('sel-zona').value = newId;
+  onZonaChange();
+  closeAddZona();
+}
+function openAddAnomalia() { document.getElementById('add-anomalia-modal').classList.add('open'); }
+function closeAddAnomalia() { document.getElementById('add-anomalia-modal').classList.remove('open'); document.getElementById('add-anomalia-input').value = ''; }
+function confirmAddAnomalia() {
+  const val = document.getElementById('add-anomalia-input').value.trim();
+  const zid = document.getElementById('sel-zona').value;
+  if(!val || !zid) return;
+  const z = bd.zonas.find(x => x.id === zid);
+  const newId = 'an_custom_' + Date.now();
+  z.anomalias.push({ id: newId, nome: val, causas: [], solucoes: [], severidade_padrao: 'M' });
+  onZonaChange();
+  document.getElementById('sel-anomalia').value = newId;
+  onAnomaliaChange();
+  closeAddAnomalia();
+}
+
+// --- UTILITÁRIOS ---
+function showToast(m) {
+  const t = document.getElementById('toast');
+  if(!t) return;
+  t.textContent = m; t.className = 'toast show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 3000);
+}
+function setDefaultDate() { if (document.getElementById('info-data') && !document.getElementById('info-data').value) document.getElementById('info-data').value = new Date().toISOString().split('T')[0]; }
+function resetNovaForm() {
+  isSaving = false;
+  document.getElementById('btn-guardar-anomalia').disabled = false;
+  document.getElementById('btn-guardar-anomalia').textContent = "GUARDAR E SINCRONIZAR";
+  document.getElementById('sel-zona').value = '';
+  document.getElementById('sel-anomalia').disabled = true;
+  document.getElementById('obs-text').value = '';
+  currentPhotos = []; currentSev = null;
+  document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
+  renderPhotos(); clearAnomaliaFields();
+}
+function clearAnomaliaFields() {
+  selectedCausas = new Set(); selectedSolucoes = new Set(); customCausas = []; customSolucoes = [];
+  ['causas-chips', 'solucoes-chips', 'causas-custom-list', 'solucoes-custom-list'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = '';
+  });
+  if(document.getElementById('nota-tecnica-card')) document.getElementById('nota-tecnica-card').style.display = 'none';
+}
+function addCausaCustom() {
+  const v = document.getElementById('causa-custom').value.trim();
+  if(!v) return; customCausas.push(v);
+  const div = document.createElement('div'); div.style.fontSize = '12px'; div.style.marginTop = '4px'; div.textContent = '• ' + v;
+  document.getElementById('causas-custom-list').appendChild(div);
+  document.getElementById('causa-custom').value = '';
+}
+function addSolucaoCustom() {
+  const v = document.getElementById('solucao-custom').value.trim();
+  if(!v) return; customSolucoes.push(v);
+  const div = document.createElement('div'); div.style.fontSize = '12px'; div.style.marginTop = '4px'; div
