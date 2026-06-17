@@ -143,10 +143,6 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
 </head>
 <body>
 
-  <div class="header-logo">
-    <img src="logo.png" alt="Casas do Tejo">
-  </div>
-
   <div class="toast" id="toast"></div>
 
   <nav class="bottom-nav">
@@ -284,7 +280,7 @@ select:focus, input:focus, textarea:focus { outline: none; border-color: var(--a
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="saveAnomalia()" style="margin-bottom: 20px;">GUARDAR E SINCRONIZAR</button>
+    <button class="btn btn-primary" id="btn-guardar-anomalia" onclick="saveAnomalia()" style="margin-bottom: 20px;">GUARDAR E SINCRONIZAR</button>
   </div>
 
   <div class="screen" id="screen-lista">
