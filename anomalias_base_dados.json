@@ -1,106 +1,60 @@
 {
-  "versao": "1.0",
+  "versao": "2.0",
   "zonas": [
     {
       "id": "fachadas",
-      "nome": "Fachadas",
+      "nome": "Fachadas (Tradicional & ETICS)",
       "anomalias": [
         {
           "id": "fach_01",
-          "nome": "Fissuras no revestimento",
+          "nome": "Fissuras no revestimento tradicional",
           "severidade_padrao": "M",
-          "causas": [
-            "Retração hidráulica do reboco por secagem rápida na aplicação",
-            "Ciclos quente-frio com dilatação térmica diferencial",
-            "Movimentos diferenciais entre elementos estruturais e não estruturais",
-            "Falta de manutenção"
-          ],
-          "solucoes": [
-            "Limpeza e selagem das fissuras com argamassa de cal ou produto elástico compatível",
-            "Aplicação de primário de consolidação e posterior pintura com tinta elástica",
-            "Em fissuras activas: corte em V, selagem com mástique elástico e remate"
-          ],
-          "notas_tecnicas": "Distinguir fissuras passivas (estabilizadas) de activas (em evolução). Fissuras com largura > 0,3 mm devem ser reportadas ao projectista."
+          "causas": ["Retração hidráulica", "Ciclos quente-frio", "Movimentos estruturais"],
+          "solucoes": ["Selagem com argamassa de cal", "Pintura elástica", "Corte em V e mástique"],
+          "notas_tecnicas": "Monitorizar com fissurômetro se largura > 0,3 mm."
         },
         {
-          "id": "fach_02",
-          "nome": "Infiltrações / humidade de precipitação",
+          "id": "fach_05",
+          "nome": "Microfissuração em ETICS (Capoto)",
           "severidade_padrao": "G",
-          "causas": [
-            "Degradação ou ausência de selagem nas juntas de caixilharia",
-            "Revestimento de fachada fissurado ou com porosidade elevada",
-            "Junta de dilatação selada com material rígido ou degradado",
-            "Cornijas ou peitoris sem goteira"
-          ],
-          "solucoes": [
-            "Inspecção e refechamento de juntas com mástique de poliuretano ou silicone neutro",
-            "Aplicação de hidrofugante de superfície em revestimentos porosos",
-            "Substituição da selagem da junta de dilatação por perfil elástico adequado",
-            "Execução ou reparação de goteiras em peitoris e cornijas"
-          ],
-          "notas_tecnicas": "Identificar a origem exacta da infiltração antes de intervir."
-        },
-        {
-          "id": "fach_03",
-          "nome": "Armaduras expostas / carbonatação",
-          "severidade_padrao": "G",
-          "causas": [
-            "Recobrimento insuficiente das armaduras na construção",
-            "Carbonatação do betão atingindo a armadura",
-            "Cloretos em zonas costeiras acelerando a corrosão"
-          ],
-          "solucoes": [
-            "Remoção do betão degradado até 2 cm além da armadura exposta",
-            "Tratamento anticorrosivo das armaduras (primário epoxídico bicomponente)",
-            "Reposição do recobrimento com argamassa de reparação estrutural (classe R3/R4)"
-          ],
-          "notas_tecnicas": "A extensão da corrosão pode ser superior à visível."
-        },
-        {
-          "id": "fach_04",
-          "nome": "Destacamento / empolamento do revestimento",
-          "severidade_padrao": "M",
-          "causas": [
-            "Falta de aderência entre camadas de revestimento",
-            "Humidade retida entre suporte e revestimento",
-            "Aplicação sobre suporte contaminado"
-          ],
-          "solucoes": [
-            "Percussão para mapeamento das zonas ocas e remoção selectiva",
-            "Limpeza e preparação do suporte",
-            "Aplicação de primário de aderência e reposição do revestimento"
-          ],
-          "notas_tecnicas": "Utilizar percussão (martelo leve) para identificar extensão das zonas ocas."
+          "causas": ["Falta de rede nos cantos", "Fixações insuficientes", "Tensões térmicas em cores escuras"],
+          "solucoes": ["Reforço com rede e argamassa delgada", "Revestimento final acrílico", "Substituição de placas"],
+          "notas_tecnicas": "Cores escuras potenciaram o choque térmico."
         }
       ]
     },
     {
       "id": "cobertura",
-      "nome": "Cobertura",
+      "nome": "Coberturas",
       "anomalias": [
         {
           "id": "cob_01",
-          "nome": "Infiltrações pela cobertura",
+          "nome": "Infiltração em telhado inclinado",
           "severidade_padrao": "G",
-          "causas": [
-            "Telhas partidas, deslocadas ou em falta",
-            "Degradação ou ausência de impermeabilização na zona de cumeeira, rincões e platibandas",
-            "Caleiras e rufos degradados ou mal executados"
-          ],
-          "solucoes": [
-            "Inspecção completa e substituição de telhas danificadas",
-            "Reparação ou substituição de impermeabilização em pontos singulares",
-            "Substituição de caleiras e rufos degradados"
-          ],
-          "notas_tecnicas": "Verificar estado da estrutura de suporte em coberturas inclinadas."
+          "causas": ["Telhas partidas/deslocadas", "Degradação de rufos", "Entupimento de caleiras"],
+          "solucoes": ["Substituição de telhas", "Reparação de rufos", "Limpeza de sistemas de escoamento"]
         },
         {
-          "id": "cob_02",
-          "nome": "Estrutura de madeira degradada",
-          "severidade_padrao": "MG",
-          "causas": [
-            "Ataque de xilófagos (caruncho, térmitas)",
-            "Humidade permanente por infiltrações",
-            "Falta de ventilação da caixa de ar"
-          ],
-          "solucoes":
+          "id": "cob_04",
+          "nome": "Rotura de Membrana (Plana)",
+          "severidade_padrao": "G",
+          "causas": ["Envelhecimento UV", "Puncionamento mecânico", "Má execução de juntas"],
+          "solucoes": ["Remendo a quente", "Membrana líquida de poliuretano", "Nova impermeabilização completa"]
+        }
+      ]
+    },
+    {
+      "id": "caves_enterradas",
+      "nome": "Caves & Enterrados",
+      "anomalias": [
+        {
+          "id": "cave_01",
+          "nome": "Infiltração por Pressão Hidrostática",
+          "severidade_padrao": "G",
+          "causas": ["Falha em tela nodada", "Dreno perimetral colmatado", "Fissura estrutural sob empuxo"],
+          "solucoes": ["Drenagem exterior", "Cristalização cimentícia (interior)", "Injecção de resinas expansivas"]
+        }
+      ]
+    }
+  ]
+}
